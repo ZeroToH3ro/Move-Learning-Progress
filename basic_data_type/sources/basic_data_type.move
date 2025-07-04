@@ -12,6 +12,10 @@ module basic_data_type::basic_data_type {
     use sui::tx_context::{Self, TxContext};
     use std::string::{Self, String};
 
+    const E_INVALID_AGE: u64 = 0;
+    const E_INVALID_DATE_OF_BIRTH: u64 = 1;
+    const E_EMPTY_NAME: u64 = 2;
+
     public struct Person has key {
         id: UID,
         name: String,
@@ -24,6 +28,7 @@ module basic_data_type::basic_data_type {
     public struct BASIC_DATA_TYPE has drop {}
 
     // Module initializer - called once when the module is published
+    // Private function
     fun init(_witness: BASIC_DATA_TYPE, ctx: &mut TxContext) {
         let person = Person {
             id: object::new(ctx),
@@ -36,7 +41,7 @@ module basic_data_type::basic_data_type {
         // Transfer the person the transaction sender
         transfer::transfer(person, tx_context::sender(ctx));
     }
-
+    // public function
     public fun create_person(
         name_bytes: vector<u8>, 
         city_bytes: vector<u8>,
@@ -44,6 +49,11 @@ module basic_data_type::basic_data_type {
         date_of_birth: u8, 
         ctx: &mut TxContext
     ) {
+        // Conditional validation
+        assert!(!vector::is_empty(&name_bytes), E_EMPTY_NAME);
+        assert!(age >= 1 && age <=120, E_INVALID_AGE);
+        assert!(date_of_birth >= 1 && date_of_birth <= 31, E_INVALID_DATE_OF_BIRTH);
+
         let person = Person {
             id: object::new(ctx),
             name: string::utf8(name_bytes),
@@ -53,5 +63,29 @@ module basic_data_type::basic_data_type {
         };
 
         transfer::transfer(person, tx_context::sender(ctx));
+    }
+
+    public fun get_person_age(person: &Person): u8 {
+        person.age
+    }
+
+    fun validate_age(age: u8): bool {
+        age >= 1 && age <= 120
+    }
+
+    public fun get_person_info(person: &Person): (String, String, u8) {
+        (person.name, person.city, person.age)
+    }
+
+    public fun is_adult(person: &Person): bool {
+        person.age >= 18
+    }
+
+    public fun update_person_age(
+        person: &mut Person,
+        new_age: u8
+    ) {
+        assert!(validate_age(new_age), E_INVALID_AGE);
+        person.age = new_age;
     }
 }
