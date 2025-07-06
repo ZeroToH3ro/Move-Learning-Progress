@@ -7,6 +7,10 @@ module dex::eth {
 
     public struct ETH has drop {}
 
+    public struct EthData has store {
+        dummy: bool
+    }
+
     fun init(witness: ETH, ctx: &mut TxContext) {
         let (treasury_cap, metadata) = coin::create_currency<ETH>(
             witness,

@@ -13,6 +13,10 @@ module dex::usdc {
 
     public struct USDC has drop {}
 
+    public struct UsdcData has store {
+        dummy: bool
+    }
+
     fun init(witness: USDC, ctx: &mut TxContext) {
         // We call the create_currency
         // Creating a currency requires a one-time witness to ensure it is a unique coin
